@@ -80,7 +80,8 @@ module EFax
             xml.FaxHeader(subject)
           end
           xml.DispositionControl do
-            xml.DispositionLevel("NONE")
+            xml.DispositionLevel("BOTH")
+            xml.DispositionURL("http://24.17.78.106:3000/orders/fax_response")
           end
           xml.Recipients do
             xml.Recipient do
