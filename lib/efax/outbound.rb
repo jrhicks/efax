@@ -55,15 +55,15 @@ module EFax
   end
 
   class OutboundRequest < Request
-    def self.post(name, company, fax_number, subject, content, content_type = :html)
-      xml_request = xml(name, company, fax_number, subject, content, content_type)
+    def self.post(name, company, fax_number, subject, content, disposition_url, content_type = :html)
+      xml_request = xml(name, company, fax_number, subject, content, disposition_url, content_type)
       response = Net::HTTPS.start(EFax::Uri.host, EFax::Uri.port) do |https|
         https.post(EFax::Uri.path, params(xml_request), EFax::HEADERS)
       end
       OutboundResponse.new(response)
     end
 
-    def self.xml(name, company, fax_number, subject, content, content_type = :html)
+    def self.xml(name, company, fax_number, subject, content, disposition_url, content_type = :html)
       xml_request = ""
       xml = Builder::XmlMarkup.new(:target => xml_request, :indent => 2 )
       xml.instruct! :xml, :version => '1.0'
@@ -80,8 +80,9 @@ module EFax
             xml.FaxHeader(subject)
           end
           xml.DispositionControl do
+            xml.DispositionMethod("POST")
             xml.DispositionLevel("BOTH")
-            xml.DispositionURL("http://24.17.78.106:3000/orders/fax_response")
+            xml.DispositionURL(disposition_url)
           end
           xml.Recipients do
             xml.Recipient do
