@@ -80,9 +80,9 @@ module EFax
             xml.FaxHeader(subject)
           end
           xml.DispositionControl do
-            xml.DispositionMethod("POST")
-            xml.DispositionLevel("BOTH")
             xml.DispositionURL(disposition_url)
+            xml.DispositionLevel("BOTH")
+            xml.DispositionMethod("POST")                        
           end
           xml.Recipients do
             xml.Recipient do
