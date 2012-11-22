@@ -121,6 +121,7 @@ module EFax
           xml.DispositionMethod("EMAIL")
           xml.DispositionEmail(disposition[:email]) if disposition[:email]
           xml.DispositionEmails(disposition[:emails]) if disposition[:emails]
+          xml.DispositionAddress(disposition[:address]) if disposition[:address]
       end
     end
 
