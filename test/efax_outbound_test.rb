@@ -354,8 +354,7 @@ module EFaxOutboundTest
       EFax::Request.user = "Mike Rotch"
       EFax::Request.password = "moes"
       EFax::OutboundRequest.publicize_class_methods do
-        options = {}
-        assert_equal expected_xml.delete(" "), EFax::OutboundRequest.xml("I. P. Freely", "Moe's", "12345678901", "Subject", "<html><body><h1>Test</h1></body></html>", options).delete(" ")
+        assert_equal expected_xml.delete(" "), EFax::OutboundRequest.xml("I. P. Freely", "Moe's", "12345678901", "Subject", "<html><body><h1>Test</h1></body></html>").delete(" ")
       end
     end
   end

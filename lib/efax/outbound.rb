@@ -55,7 +55,11 @@ module EFax
   end
 
   class OutboundRequest < Request
-    def self.post(name, company, fax_number, subject, content, options)
+
+    DISPOSITION_LEVELS = ["ERROR","SUCCESS","BOTH","NONE"]
+    DISPOSITION_METHODS = ["POST","EMAIL"]
+
+    def self.post(name, company, fax_number, subject, content, options={})
       xml_request = xml(name, company, fax_number, subject, content, options)
       response = Net::HTTPS.start(EFax::Uri.host, EFax::Uri.port) do |https|
         https.post(EFax::Uri.path, params(xml_request), EFax::HEADERS)
@@ -63,7 +67,7 @@ module EFax
       OutboundResponse.new(response)
     end
 
-    def self.xml(name, company, fax_number, subject, content, options)
+    def self.xml(name, company, fax_number, subject, content, options={})
       xml_request = ""
       xml = Builder::XmlMarkup.new(:target => xml_request, :indent => 2 )
       xml.instruct! :xml, :version => '1.0'
@@ -80,7 +84,10 @@ module EFax
             xml.FaxHeader(subject)
           end
           xml.DispositionControl do
-            xml.DispositionLevel("NONE")
+            disposition = options[:disposition]
+            disposition ?
+              set_disposition(xml, disposition) :
+              xml.DispositionLevel("NONE")
           end
           xml.Recipients do
             xml.Recipient do
@@ -99,6 +106,21 @@ module EFax
         end
       end
       xml_request
+    end
+
+    def self.set_disposition(xml, disposition)
+      xml.DispositionLevel(disposition[:level] || "NONE")
+      case disposition[:method]
+        when "POST"
+          xml.DispositionMethod("POST")
+          #make url required
+          #make sure url is valid
+          xml.DispositionUrl(disposition[:url])
+        when "EMAIL"
+          xml.DispositionMethod("EMAIL")
+          xml.DispositionEmail(disposition[:email]) if disposition[:email]
+          xml.DispositionEmails(disposition[:emails]) if disposition[:emails]
+      end
     end
 
     private_class_method :xml
