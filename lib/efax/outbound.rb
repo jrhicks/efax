@@ -109,6 +109,7 @@ module EFax
     end
 
     def self.set_disposition(xml, disposition)
+      #raise error if disposition[:level] && !DISPOSITION_LEVELS.include?(disposition[:level])
       xml.DispositionLevel(disposition[:level] || "NONE")
       case disposition[:method]
         when "POST"
