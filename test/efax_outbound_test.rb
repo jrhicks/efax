@@ -357,6 +357,56 @@ module EFaxOutboundTest
         assert_equal expected_xml.delete(" "), EFax::OutboundRequest.xml("I. P. Freely", "Moe's", "12345678901", "Subject", "<html><body><h1>Test</h1></body></html>").delete(" ")
       end
     end
+
+    def test_generate_xml_disposition
+      expected_xml = <<-XML
+        <?xml version="1.0" encoding="UTF-8"?>
+          <OutboundRequest>
+            <AccessControl>
+              <UserName>Mike Rotch</UserName>
+              <Password>moes</Password>
+            </AccessControl>
+            <Transmission>
+              <TransmissionControl>
+                <Resolution>FINE</Resolution>
+                <Priority>NORMAL</Priority>
+                <SelfBusy>ENABLE</SelfBusy>
+                <FaxHeader>Subject</FaxHeader>
+              </TransmissionControl>
+            <DispositionControl>
+              <DispositionLevel>BOTH</DispositionLevel>
+              <DispositionMethod>POST</DispositionMethod>
+              <DispositionUrl>http://test.com</DispositionUrl>
+            </DispositionControl>
+            <Recipients>
+              <Recipient>
+                <RecipientName>I. P. Freely</RecipientName>
+                <RecipientCompany>Moe's</RecipientCompany>
+                <RecipientFax>12345678901</RecipientFax>
+              </Recipient>
+            </Recipients>
+            <Files>
+              <File>
+                <FileContents>PGh0bWw+PGJvZHk+PGgxPlRlc3Q8L2gxPjwvYm9keT48L2h0bWw+</FileContents>
+                <FileType>html</FileType>
+              </File>
+            </Files>
+          </Transmission>
+        </OutboundRequest>
+      XML
+      EFax::Request.user = "Mike Rotch"
+      EFax::Request.password = "moes"
+      EFax::OutboundRequest.publicize_class_methods do
+        options = {
+          :disposition => {
+            :method => "POST",
+            :level => "BOTH",
+            :url => "http://test.com"
+          }
+        }
+        assert_equal expected_xml.delete(" "), EFax::OutboundRequest.xml("I. P. Freely", "Moe's", "12345678901", "Subject", "<html><body><h1>Test</h1></body></html>",options).delete(" ")
+      end
+    end
   end
 
   class OutboundStatusTest < Test::Unit::TestCase
