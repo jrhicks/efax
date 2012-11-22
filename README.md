@@ -18,7 +18,21 @@ EFax::Request.password   = <your password>
 Sending an HTML page using eFax service is pretty simple:
 
 ```ruby
-response = EFax::OutboundRequest.post(recipient_name, company_name, fax_number, subject, content)
+response = EFax::OutboundRequest.post(recipient_name, company_name, fax_number, subject, content, options)
+```
+
+Options is a hash and can contain content_type and another hash for disposition info.  If no options are given,
+the content_type is set to html by default.  An example options hash:
+
+```ruby
+  options = {
+    :content_type => "html",
+    :disposition => {
+      :method => "POST",
+      :level => "BOTH",
+      :url => "http://notifications.com"
+    }
+  }
 ```
 
 See `EFax::RequestStatus` class for details on status codes.
